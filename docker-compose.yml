@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mysql_service:
+    image: mysql:latest
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: userdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  fastapi_service:
+    build: .
+    container_name: fastapi_container
+    depends_on:
+      mysql_service:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql+pymysql://root:my-secret-pw@mysql_service/userdb
+    ports:
+      - "8000:8000"
+
+
+volumes:
+  mysql_data:
